@@ -1,0 +1,12 @@
+This is the code to accompany two blog-posts I wrote about transfering
+data between computers using a jury rigged sound-card modem.
+
+Note that these programs are mainly educational, and if you want to do this
+in a critical situation, you'll at the very least want to add Hamming-code or
+some other error correction scheme.
+
+The articles can be found here:
+http://awesomegeekblog.blogspot.com/2009/04/file-transfer-over-sound-card.html
+http://awesomegeekblog.blogspot.com/2009/04/file-transfer-over-sound-card-ii-phase.html
+
+The code is public domain.
