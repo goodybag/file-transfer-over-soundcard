@@ -5,6 +5,14 @@ Note that these programs are mainly educational, and if you want to do this
 in a critical situation, you'll at the very least want to add Hamming-code or
 some other error correction scheme.
 
+The source code consists of a multitude of programs.
+
+* playback and record plays and record a data stream using OSS. If you don't have OSS support, ALSA can emulate it with the 'aoss' wrapper.
+* generate turns a binary file into raw wave data.
+* generate_psk does the same, except encoding it with phase shift keying.
+* analyze turns a recording into data again
+* analyze_psk does it for PSK-encoded data.
+
 The articles can be found here:
 http://awesomegeekblog.blogspot.com/2009/04/file-transfer-over-sound-card.html
 http://awesomegeekblog.blogspot.com/2009/04/file-transfer-over-sound-card-ii-phase.html
