@@ -8,20 +8,17 @@
 #include <memory.h>
 
 int rate = 8000;
-int fmt_signed = 1;
 char* dsp = "/dev/dsp";
+int wide = 0;
 
 void initialize(int fd) {
 	int arg = 0;
 
-	arg = AFMT_S8;
+	if(!wide) arg = AFMT_S8;
+	else arg = AFMT_S16_LE;
+
 	if(ioctl(fd, SNDCTL_DSP_SETFMT, &arg) == -1) {
 		perror("SNDCTL_DSP_SETFMT");
-		exit(EXIT_FAILURE);
-	}
-	if(arg != AFMT_S8) {
-		if(arg == AFMT_U8) fmt_signed = 0;
-		else fprintf(stderr, "Unable to set 8 bit format\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -60,11 +57,13 @@ int main(int argc, char* argv[]) {
 	int fd = 0;
 	int i;
 	char* buffer = NULL;
+	short* sbuffer = NULL;
 
-	while((i = getopt(argc, argv, "r:d:ho:"))) switch(i) {
+	while((i = getopt(argc, argv, "r:d:ho:w"))) switch(i) {
 		case 'h': usage(argv[0]); return EXIT_SUCCESS;
 		case 'r': rate = atoi(optarg); break;
 		case 'd': dsp = strdup(optarg); break;
+		case 'w': wide = 1; break;
 		case 'o': 
 			outfile = fopen(optarg, "w"); 
 			if(!outfile) perror(optarg);
@@ -75,18 +74,23 @@ int main(int argc, char* argv[]) {
 	}	
 	done:
 	buffer = malloc(rate);
-
+	sbuffer = malloc(2*rate);
 
 	fd = open(dsp, O_RDONLY);
 	if(fd < 0) { perror(dsp); exit(EXIT_FAILURE); }
 	initialize(fd);
 
-	while(read(fd, buffer, rate) == rate) {
-		if(!fmt_signed) for(i = 0; i < rate; i++) {
-			buffer[i] = ((unsigned char*) buffer)[i] - 127;
+	if(wide) {
+		while(read(fd, sbuffer, 2*rate) == 2*rate) {
+			for(i = 0; i < rate; i++) {
+				buffer[i] = sbuffer[i] / 0x0100;
+			}
+			fwrite(buffer, 1, rate, outfile);
 		}	
-		fwrite(buffer, 1, rate, outfile);
-		
+	} else {
+		while(read(fd, buffer, rate) == rate) {
+			fwrite(buffer, 1, rate, outfile);
+		}
 	}
 
 	return EXIT_SUCCESS;
